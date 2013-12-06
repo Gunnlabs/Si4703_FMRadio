@@ -19,9 +19,14 @@ void Si4703_Breakout::setChannel(int channel)
   //Freq(MHz) = 0.200(in USA) * Channel + 87.5MHz
   //97.3 = 0.2 * Chan + 87.5
   //9.8 / 0.2 = 49
+  //channel = ((10 * channel) / 5) + 875;
+  //Multiply by 10 to eliminate decimal points, and divide by 5 is analalous to * 0.2, and finally add 875 (87.5 * 10) for base freq.
+  int newChannel = (((channel - 875) * 5) / 10);
+  /* - Old UK Method of selecting channel
   int newChannel = channel * 10; //973 * 10 = 9730
   newChannel -= 8750; //9730 - 8750 = 980
   newChannel /= 10; //980 / 10 = 98
+*/
 
   //These steps come from AN230 page 20 rev 0.5
   readRegisters();
