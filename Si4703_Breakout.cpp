@@ -238,11 +238,11 @@ int Si4703_Breakout::getChannel() {
   int channel = si4703_registers[READCHAN] & 0x03FF; //Mask out everything but the lower 10 bits
   //Freq(MHz) = 0.100(in Europe) * Channel + 87.5MHz
   //X = 0.1 * Chan + 87.5
-  Serial.println(channel);
-  channel = (10 * channel) / 5;
-  Serial.println(channel);
-  channel += 875;
-  Serial.println(channel);
+  //Serial.println(channel);
+  channel = ((10 * channel) / 5) + 875;
+  //Serial.println(channel);
+  //channel += 875;
+  //Serial.println(channel);
   //channel += 875; //98 + 875 = 973
   return(channel);
 }
