@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "Si4703_Breakout.h"
 #include "Wire.h"
+//SEEKSENS - 0=More Stations, 2=Fewer Stations
+#define SEEKSENS 0
 
 Si4703_Breakout::Si4703_Breakout(int resetPin, int sdioPin, int sclkPin)
 {
@@ -150,6 +152,25 @@ void Si4703_Breakout::si4703_init()
 
   si4703_registers[SYSCONFIG2] &= 0xFFF0; //Clear volume bits
   si4703_registers[SYSCONFIG2] |= 0x0001; //Set volume to lowest
+  
+  #if SEEKSENS == 1
+    si4703_registers[SYSCONFIG2] &= 0x00FF; //Clear SEEKTH bits
+    si4703_registers[SYSCONFIG2] |= 0x1900; //Set SEEKTH to recommended settings
+    si4703_registers[0x6] &= 0xFF00; //Clear SKSNR & SKCNT bits
+    si4703_registers[0x6] |= 0x0048; //Set SKSNR & SKCNT to recommended settings
+  #endif
+  #if SEEKSENS == 0
+    si4703_registers[SYSCONFIG2] &= 0x00FF; //Clear SEEKTH bits
+    si4703_registers[SYSCONFIG2] |= 0x0C00; //Set SEEKTH to recommended settings
+    si4703_registers[0x6] &= 0xFF00; //Clear SKSNR & SKCNT bits
+    si4703_registers[0x6] |= 0x0048; //Set SKSNR & SKCNT to recommended settings
+  #endif
+  #if SEEKSENS == 2
+      si4703_registers[SYSCONFIG2] &= 0x00FF; //Clear SEEKTH bits
+    si4703_registers[SYSCONFIG2] |= 0x0C00; //Set SEEKTH to recommended settings
+    si4703_registers[0x6] &= 0xFF00; //Clear SKSNR & SKCNT bits
+    si4703_registers[0x6] |= 0x007F; //Set SKSNR & SKCNT to recommended settings
+  #endif
   updateRegisters(); //Update
 
   delay(110); //Max powerup time, from datasheet page 13
