@@ -23,7 +23,9 @@ void setup()
   
 
   radio.powerOn();
-  radio.setVolume(0);
+  radio.setVolume(6);
+  channel = 1041; // BBC R4
+  radio.setChannel(channel);
 }
 
 void loop()

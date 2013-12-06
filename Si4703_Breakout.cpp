@@ -3,6 +3,9 @@
 #include "Wire.h"
 //SEEKSENS - 0=More Stations, 2=Fewer Stations
 #define SEEKSENS 0
+#define DEBUG 0
+#define DEBUGRDSBASIC 0
+//int volatile intInterrupt;
 
 Si4703_Breakout::Si4703_Breakout(int resetPin, int sdioPin, int sclkPin)
 {
@@ -11,9 +14,24 @@ Si4703_Breakout::Si4703_Breakout(int resetPin, int sdioPin, int sclkPin)
   _sclkPin = sclkPin;
 }
 
+void Si4703_Breakout::intFunc() {
+  byte bytSAME;
+  byte bytASQ;
+  #if DEBUG
+    Serial.println("Interrupt activated.");
+  #endif
+  #if DEBUG
+    Serial.print("Status byte=0x");
+  #endif
+
+}
+  
+  
 void Si4703_Breakout::powerOn()
 {
     si4703_init();
+	//pinMode(2, INPUT);
+    //attachInterrupt(0, Si4703_Breakout::intFunc, FALLING);
 }
 
 void Si4703_Breakout::setChannel(int channel)
@@ -88,7 +106,49 @@ void Si4703_Breakout::readRDS(char* buffer, long timeout)
 		// once we have a full set return
 		// if you get nothing after 20 readings return with empty string
 	  uint16_t b = si4703_registers[RDSB];
-	  int index = b & 0x03;
+	  int index;
+	  #if DEBUG
+	    index = b & 0xF800;
+	    
+		if (index == 0x0001) {
+		  //Basic Tuning Info
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x2000) {
+		  //Radio Text
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x3001) {
+		  //Applications ID
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x4001) {
+		  //Time & Date
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+  	      Serial.println("-------------------------");
+	 	}
+		else if (index == 0xA001) {
+		  //Program Type Name
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0xFFFF) {
+		Serial.println(si4703_registers[RDSA], HEX);
+		Serial.println(si4703_registers[RDSB], HEX);
+		Serial.println(si4703_registers[RDSC], HEX);
+		Serial.println(si4703_registers[RDSD], HEX);
+		Serial.println("-------------------------");
+		}
+	  #endif
+	  index = b & 0x03;
 	  if (! completed[index] && b < 500)
 	  {
 		completed[index] = true;
@@ -97,11 +157,13 @@ void Si4703_Breakout::readRDS(char* buffer, long timeout)
       	char Dl = (si4703_registers[RDSD] & 0x00FF);
 		buffer[index * 2] = Dh;
 		buffer[index * 2 +1] = Dl;
-		// Serial.print(si4703_registers[RDSD]); Serial.print(" ");
-		// Serial.print(index);Serial.print(" ");
-		// Serial.write(Dh);
-		// Serial.write(Dl);
-		// Serial.println();
+		#if DEBUGRDSBASIC
+		 Serial.print(si4703_registers[RDSD]); Serial.print(" ");
+		 Serial.print(index);Serial.print(" ");
+		 Serial.write(Dh);
+		 Serial.write(Dl);
+		 Serial.println();
+		#endif
       }
       delay(40); //Wait for the RDS bit to clear
 	}
@@ -276,4 +338,89 @@ int Si4703_Breakout::getChannel() {
 int Si4703_Breakout::getRegister(int reg) {
   readRegisters();
   return(si4703_registers[reg]);
+}
+
+void Si4703_Breakout::RDS(char* buffer, long timeout)
+{ 
+	long endTime = millis() + timeout;
+  boolean completed[] = {false, false, false, false};
+  int completedCount = 0;
+  while(completedCount < 4 && millis() < endTime) {
+	readRegisters();
+	if(si4703_registers[STATUSRSSI] & (1<<RDSR)){
+		// ls 2 bits of B determine the 4 letter pairs
+		// once we have a full set return
+		// if you get nothing after 20 readings return with empty string
+	  uint16_t b = si4703_registers[RDSB];
+	  int index;
+	  #if DEBUG
+	    index = b & 0xF800;
+	    
+		if (index == 0x0001) {
+		  //Basic Tuning Info
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x2000) {
+		  //Radio Text
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x3001) {
+		  //Applications ID
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0x4001) {
+		  //Time & Date
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+  	      Serial.println("-------------------------");
+	 	}
+		else if (index == 0xA001) {
+		  //Program Type Name
+		  Serial.println(si4703_registers[RDSC], HEX);
+		  Serial.println(si4703_registers[RDSD], HEX);
+		  Serial.println("-------------------------");
+		}
+		else if (index == 0xFFFF) {
+		Serial.println(si4703_registers[RDSA], HEX);
+		Serial.println(si4703_registers[RDSB], HEX);
+		Serial.println(si4703_registers[RDSC], HEX);
+		Serial.println(si4703_registers[RDSD], HEX);
+		Serial.println("-------------------------");
+		}
+	  #endif
+	  index = b & 0x03;
+	  if (! completed[index] && b < 500)
+	  {
+		completed[index] = true;
+		completedCount ++;
+	  	char Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
+      	char Dl = (si4703_registers[RDSD] & 0x00FF);
+		buffer[index * 2] = Dh;
+		buffer[index * 2 +1] = Dl;
+		#if DEBUGRDSBASIC
+		 Serial.print(si4703_registers[RDSD]); Serial.print(" ");
+		 Serial.print(index);Serial.print(" ");
+		 Serial.write(Dh);
+		 Serial.write(Dl);
+		 Serial.println();
+		#endif
+      }
+      delay(40); //Wait for the RDS bit to clear
+	}
+	else {
+	  delay(30); //From AN230, using the polling method 40ms should be sufficient amount of time between checks
+	}
+  }
+	if (millis() >= endTime) {
+		buffer[0] ='\0';
+		return;
+	}
+
+  buffer[8] = '\0';
 }

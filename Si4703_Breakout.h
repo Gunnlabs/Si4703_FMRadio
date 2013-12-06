@@ -23,6 +23,7 @@ class Si4703_Breakout
   public:
     Si4703_Breakout(int resetPin, int sdioPin, int sclkPin);
     void powerOn();					// call in setup
+	void intFunc();
 	void setChannel(int channel);  	// 3 digit channel number
 	int seekUp(); 					// returns the tuned channel or 0
 	int seekDown(); 				
@@ -36,6 +37,7 @@ class Si4703_Breakout
     int  _resetPin;
 	int  _sdioPin;
 	int  _sclkPin;
+	
 	void si4703_init();
 	void readRegisters();
 	byte updateRegisters();
