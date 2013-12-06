@@ -226,8 +226,8 @@ byte Si4703_Breakout::updateRegisters() {
 int Si4703_Breakout::seek(byte seekDirection){
   readRegisters();
   //Set seek mode wrap bit
-  si4703_registers[POWERCFG] |= (1<<SKMODE); //Allow wrap
-  //si4703_registers[POWERCFG] &= ~(1<<SKMODE); //Disallow wrap - if you disallow wrap, you may want to tune to 87.5 first
+  //si4703_registers[POWERCFG] |= (1<<SKMODE); //Disallow wrap - if you disallow wrap, you may want to tune to 87.5 first
+  si4703_registers[POWERCFG] &= ~(1<<SKMODE); //Allow wrap
   if(seekDirection == SEEK_DOWN) si4703_registers[POWERCFG] &= ~(1<<SEEKUP); //Seek down is the default upon reset
   else si4703_registers[POWERCFG] |= 1<<SEEKUP; //Set the bit to seek up
 
