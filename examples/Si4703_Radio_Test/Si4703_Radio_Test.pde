@@ -8,7 +8,7 @@ int SCLK = A5;
 Si4703_Breakout radio(resetPin, SDIO, SCLK);
 int channel;
 int volume;
-char rdsBuffer[10];
+char rdsBuffer[64];
 
 void setup()
 {

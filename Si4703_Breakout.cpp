@@ -30,7 +30,7 @@ void Si4703_Breakout::intFunc() {
 void Si4703_Breakout::powerOn()
 {
     si4703_init();
-	//pinMode(2, INPUT);
+    //pinMode(2, INPUT);
     //attachInterrupt(0, Si4703_Breakout::intFunc, FALLING);
 }
 
@@ -154,7 +154,7 @@ void Si4703_Breakout::readRDS(char* buffer, long timeout)
 		completed[index] = true;
 		completedCount ++;
 	  	char Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
-      	char Dl = (si4703_registers[RDSD] & 0x00FF);
+	       char Dl = (si4703_registers[RDSD] & 0x00FF);
 		buffer[index * 2] = Dh;
 		buffer[index * 2 +1] = Dl;
 		#if DEBUGRDSBASIC
@@ -363,7 +363,16 @@ void Si4703_Breakout::debugRDS(long timeout)
 		}
 		else if (index == 0x2000) {
 		  //Radio Text
-		  Serial.println(si4703_registers[RDSC], HEX);
+		 index = b & 0x000F;
+		 Serial.print("Radio Text: ");
+		 Serial.println(index, HEX);
+		 char Dh = (si4703_registers[RDSC] & 0xFF00) >> 8;
+                 char Dl = (si4703_registers[RDSC] & 0x00FF);
+		 Serial.print(Dh); Serial.print(Dl);
+		  Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
+                 Dl = (si4703_registers[RDSD] & 0x00FF);
+		 Serial.print(Dh); Serial.println(Dl);
+		 Serial.println(si4703_registers[RDSC], HEX);
 		  Serial.println(si4703_registers[RDSD], HEX);
 		  Serial.println("-------------------------");
 		}
