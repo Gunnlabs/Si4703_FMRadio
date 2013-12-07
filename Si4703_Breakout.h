@@ -32,8 +32,9 @@ class Si4703_Breakout
 									// message should be at least 9 chars
 									// result will be null terminated
 									// timeout in milliseconds
-    int getRegister(int reg);
+	int getRegister(int reg);
 	void debugRDS(long timeout);
+        void readRDS_Radiotext(char* message, long timeout);
   private:
     int  _resetPin;
 	int  _sdioPin;
