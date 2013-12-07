@@ -340,12 +340,12 @@ int Si4703_Breakout::getRegister(int reg) {
   return(si4703_registers[reg]);
 }
 
-void Si4703_Breakout::RDS(char* buffer, long timeout)
+void Si4703_Breakout::debugRDS(long timeout)
 { 
 	long endTime = millis() + timeout;
   boolean completed[] = {false, false, false, false};
   int completedCount = 0;
-  while(completedCount < 4 && millis() < endTime) {
+  while(millis() < endTime) {
 	readRegisters();
 	if(si4703_registers[STATUSRSSI] & (1<<RDSR)){
 		// ls 2 bits of B determine the 4 letter pairs
@@ -353,7 +353,6 @@ void Si4703_Breakout::RDS(char* buffer, long timeout)
 		// if you get nothing after 20 readings return with empty string
 	  uint16_t b = si4703_registers[RDSB];
 	  int index;
-	  #if DEBUG
 	    index = b & 0xF800;
 	    
 		if (index == 0x0001) {
@@ -393,24 +392,6 @@ void Si4703_Breakout::RDS(char* buffer, long timeout)
 		Serial.println(si4703_registers[RDSD], HEX);
 		Serial.println("-------------------------");
 		}
-	  #endif
-	  index = b & 0x03;
-	  if (! completed[index] && b < 500)
-	  {
-		completed[index] = true;
-		completedCount ++;
-	  	char Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
-      	char Dl = (si4703_registers[RDSD] & 0x00FF);
-		buffer[index * 2] = Dh;
-		buffer[index * 2 +1] = Dl;
-		#if DEBUGRDSBASIC
-		 Serial.print(si4703_registers[RDSD]); Serial.print(" ");
-		 Serial.print(index);Serial.print(" ");
-		 Serial.write(Dh);
-		 Serial.write(Dl);
-		 Serial.println();
-		#endif
-      }
       delay(40); //Wait for the RDS bit to clear
 	}
 	else {
@@ -418,9 +399,9 @@ void Si4703_Breakout::RDS(char* buffer, long timeout)
 	}
   }
 	if (millis() >= endTime) {
-		buffer[0] ='\0';
+		//buffer[0] ='\0';
 		return;
 	}
 
-  buffer[8] = '\0';
+  //buffer[8] = '\0';
 }

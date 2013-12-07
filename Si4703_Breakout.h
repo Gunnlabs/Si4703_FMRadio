@@ -33,6 +33,7 @@ class Si4703_Breakout
 									// result will be null terminated
 									// timeout in milliseconds
     int getRegister(int reg);
+	void debugRDS(long timeout);
   private:
     int  _resetPin;
 	int  _sdioPin;
