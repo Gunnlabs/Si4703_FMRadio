@@ -34,7 +34,7 @@ class Si4703_Breakout
 									// timeout in milliseconds
 	int getRegister(int reg);
 	void debugRDS(long timeout);
-        void readRDS_Radiotext(char* message, long timeout);
+	void readRDS_Radiotext(char* message, long timeout);
   private:
     int  _resetPin;
 	int  _sdioPin;

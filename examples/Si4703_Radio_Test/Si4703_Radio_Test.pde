@@ -23,7 +23,7 @@ void setup()
   
 
   radio.powerOn();
-  volume = 6;
+  volume = 1;
   radio.setVolume(volume);
   channel = 1041; // BBC R4
   radio.setChannel(channel);
@@ -79,8 +79,11 @@ void loop()
     }
 	else if (ch == 'R')
 	{
+	  clearRDSBuffer();
 	  Serial.println("RDS Debug");
-	  radio.debugRDS(10000);
+	  radio.readRDS_Radiotext(rdsBuffer, 5000);
+	  Serial.println(rdsBuffer); 
+	  printRDSBuffer();
 	}
 	else if (ch == 'v')
 	{
@@ -96,4 +99,18 @@ void displayInfo()
 {
    Serial.print("Channel:"); Serial.print(channel); 
    Serial.print(" Volume:"); Serial.println(volume); 
+}
+
+void clearRDSBuffer()
+{
+	for (int i; i < 64; i++) {
+		rdsBuffer[i] = 0x00;
+	}
+}
+
+void printRDSBuffer()
+{
+	for (int i; i < 64; i++) {
+		Serial.print(i); Serial.print(": "); Serial.println(rdsBuffer[i], HEX);
+	}
 }

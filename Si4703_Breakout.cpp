@@ -3,7 +3,7 @@
 #include "Wire.h"
 //SEEKSENS - 0=More Stations, 2=Fewer Stations
 #define SEEKSENS 0
-#define DEBUG 0
+#define DEBUG 1
 #define DEBUGRDSBASIC 0
 //int volatile intInterrupt;
 
@@ -417,52 +417,39 @@ void Si4703_Breakout::debugRDS(long timeout)
 
 void Si4703_Breakout::readRDS_Radiotext(char* buffer, long timeout)
 { 
-	long endTime = millis() + timeout;
+	long endTime = millis() + 5000;
  	//boolean completed[] = {false, false, false, false};
-	//int completedCount = 0;
+	int completedCount = 0; //completedCount contains the status of the discovery...
+	int indexHighest = 0;
   	while(millis() < endTime) {
 		readRegisters();
-		if(si4703_registers[STATUSRSSI] & (1<<RDSR)){
-			// ls 2 bits of B determine the 4 letter pairs
-			// once we have a full set return
-			// if you get nothing after 20 readings return with empty string
+		if(si4703_registers[STATUSRSSI] & (1<<RDSR)) {
 		  uint16_t b = si4703_registers[RDSB];
 		  int index;
 		  index = b & 0xF800;
-	    
 		  if (index == 0x2000) {
-		  	//Radio Text
-			Serial.println(si4703_registers[RDSC], HEX);
-			Serial.println(si4703_registers[RDSD], HEX);
-			Serial.println("-------------------------");
+			index = b & 0x0F;
+			if (index > indexHighest) indexHighest = index;
+			char Dh = (si4703_registers[RDSC] & 0xFF00) >> 8;
+			char Dl = (si4703_registers[RDSC] & 0x00FF);
+			buffer[(index * 4)] = Dh;
+			buffer[(index * 4) + 1] = Dl;
+			Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
+	 		Dl = (si4703_registers[RDSD] & 0x00FF);
+			buffer[(index * 4) + 2] = Dh;
+			buffer[(index * 4) + 3] = Dl;
+#if DEBUG
+			//Serial.println(index);
+			//Serial.print(Dh); Serial.print(","); Serial.println(Dl);
+#endif
 		  }
-		  //index = b & 0x03;
-		  if (index == 0x2000)
-		  {
-			//completed[index] = true;
-			//completedCount ++;
-		  	char Dh = (si4703_registers[RDSD] & 0xFF00) >> 8;
-	 		char Dl = (si4703_registers[RDSD] & 0x00FF);
-			buffer[index * 2] = Dh;
-			buffer[index * 2 +1] = Dl;
-			#if DEBUGRDSBASIC
-				 Serial.print(si4703_registers[RDSD]); Serial.print(" ");
-				 Serial.print(index);Serial.print(" ");
-				 Serial.write(Dh);
-				 Serial.write(Dl);
-			 Serial.println();
-			#endif
-		 }
-     		 delay(40); //Wait for the RDS bit to clear
-	}
-	else {
+		  delay(40); //Wait for the RDS bit to clear
+		} else {
 		 delay(30); //From AN230, using the polling method 40ms should be sufficient amount of time between checks
-	}
-  }
-  if (millis() >= endTime) {
-	buffer[0] ='\0';
-	return;
-  }
-
-  buffer[8] = '\0';
+		}
+  	}
+#if DEBUG
+  	Serial.print("indexHighest="); Serial.println(indexHighest);
+#endif
+  buffer[(indexHighest * 4) + 4] = '\0';
 }
