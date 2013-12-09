@@ -417,11 +417,11 @@ void Si4703_Breakout::debugRDS(long timeout)
 
 void Si4703_Breakout::readRDS_Radiotext(char* buffer, long timeout)
 { 
-	long endTime = millis() + 5000;
+	long endTime = millis() + 3000;
  	//boolean completed[] = {false, false, false, false};
 	int completedCount = 0; //completedCount contains the status of the discovery...
 	int indexHighest = 0;
-  	while(millis() < endTime) {
+  	while((millis() < endTime) && (completedCount < 8)) {
 		readRegisters();
 		if(si4703_registers[STATUSRSSI] & (1<<RDSR)) {
 		  uint16_t b = si4703_registers[RDSB];
@@ -429,7 +429,10 @@ void Si4703_Breakout::readRDS_Radiotext(char* buffer, long timeout)
 		  index = b & 0xF800;
 		  if (index == 0x2000) {
 			index = b & 0x0F;
-			if (index > indexHighest) indexHighest = index;
+			if (index > (indexHighest -1)) {
+				indexHighest = index;
+				completedCount++;
+			}
 			char Dh = (si4703_registers[RDSC] & 0xFF00) >> 8;
 			char Dl = (si4703_registers[RDSC] & 0x00FF);
 			buffer[(index * 4)] = Dh;
@@ -450,6 +453,7 @@ void Si4703_Breakout::readRDS_Radiotext(char* buffer, long timeout)
   	}
 #if DEBUG
   	Serial.print("indexHighest="); Serial.println(indexHighest);
+	Serial.println(endTime - millis());
 #endif
   buffer[(indexHighest * 4) + 4] = '\0';
 }

@@ -83,7 +83,7 @@ void loop()
 	  Serial.println("RDS Debug");
 	  radio.readRDS_Radiotext(rdsBuffer, 5000);
 	  Serial.println(rdsBuffer); 
-	  printRDSBuffer();
+	  //printRDSBuffer();
 	}
 	else if (ch == 'v')
 	{
@@ -104,7 +104,7 @@ void displayInfo()
 void clearRDSBuffer()
 {
 	for (int i; i < 64; i++) {
-		rdsBuffer[i] = 0x00;
+		rdsBuffer[i] = 0x20;
 	}
 }
 
